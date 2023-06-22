@@ -1,0 +1,17 @@
+{"properties": [
+  {
+    "name": "ChatGPT.secretKey",
+    "type": "java.lang.String",
+    "description": "ChatGPT Token'"
+  },
+  {
+    "name": "ChatGPT.systemPrompt",
+    "type": "java.lang.String",
+    "description": "System prompt at the beginning of the ChatCompletion messages"
+  },
+  {
+    "name": "ChatGPT.ratingPattern",
+    "type": "java.lang.String",
+    "description": "Pattern for ChatGPT rating"
+  }
+]}
