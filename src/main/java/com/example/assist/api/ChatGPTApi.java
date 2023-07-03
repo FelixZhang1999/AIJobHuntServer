@@ -1,7 +1,7 @@
 package com.example.assist.api;
 
 import com.example.assist.exception.ChatGPTResponseException;
-import com.example.assist.helper.ToStringConverter;
+import com.example.assist.helper.StringConverter;
 import com.example.assist.model.JobContent;
 import com.google.common.collect.ImmutableList;
 import com.theokanning.openai.completion.chat.ChatCompletionRequest;
@@ -32,7 +32,7 @@ public class ChatGPTApi {
         }
 
         final String ratingString = callChatGPTApi("Resume:\n" + resume +
-            "\nJobs:\n" + ToStringConverter.JobContentsToString(jobs));
+            "\nJobs:\n" + StringConverter.JobContentsToString(jobs));
         fillRatings(ratingString, jobs);
         jobs.forEach(job -> logger.info(job.toString()));
     }

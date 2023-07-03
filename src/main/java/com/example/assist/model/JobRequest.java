@@ -1,15 +1,14 @@
 package com.example.assist.model;
 
-import com.example.assist.enums.WebsiteEnum;
+import java.util.List;
 import lombok.Builder;
 import lombok.Data;
 
 @Builder
 @Data
 public class JobRequest {
-    private String education;
-    private String experience;
-    private String jobTitle;
-    private String skills;
-    private WebsiteEnum website;
+    private List<EducationData> education;
+    private List<ExperienceData> experience;
+    private String desiredTitle;
+    private String website;
 }

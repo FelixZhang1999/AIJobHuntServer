@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>AIJobHunt</title>
+    <meta property="og:title" content="AIJobHunt" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="/css/style.css" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="/javascript/app.js"></script>
+  </head>
+  <body>
+    <div>
+      <link href="/css/home.css" rel="stylesheet" />
+
+      <div class="home-container">
+        <h1 class="home-text">AIJobHunt</h1>
+        <span class="home-text01">
+          Enter your resume, we will find a suitable job posting for you.
+        </span>
+        <span class="home-text02">Your resume:</span>
+        <div id="resume-container">
+          <div class="home-container1">
+            <span class="home-text03">Your education:&nbsp;</span>
+            <button type="button" class="home-button button" id="education-add-button">Add</button>
+          </div>
+          <div class="app-component-container" id="education-container">
+            <div class="app-component-container1">
+              <div class="app-component-container2">
+                <div class="app-component-container3">
+                  <span class="app-component-text">
+                    <span>School:&nbsp;</span>
+                  </span>
+                  <input
+                    type="text"
+                    placeholder="Stanford"
+                    class="app-component-school-input input"
+                    name="school"
+                  />
+                </div>
+                <div class="app-component-container4">
+                  <span class="app-component-text1">
+                    <span>Degree:&nbsp;</span>
+                  </span>
+                  <select class="app-component-degree-select" name="degree">
+                    <option value="High School" selected="">High School</option>
+                    <option value="Bachelor">Bachelor</option>
+                    <option value="Phd">Phd</option>
+                    <option value="Master">Master</option>
+                  </select>
+                </div>
+              </div>
+              <div class="app-component-container5">
+                <div class="app-component-container6">
+                  <span class="app-component-text2">
+                    <span>Major:&nbsp;</span>
+                  </span>
+                  <input
+                    type="text"
+                    placeholder="Computer Science"
+                    class="app-component-major-input input"
+                    name="major"
+                  />
+                </div>
+                <div class="app-component-container7">
+                  <span class="app-component-text3"><span>Graduted:</span></span>
+                  <input
+                    type="checkbox"
+                    checked="true"
+                    class="app-component-graduated-checkbox"
+                    name="graduated"
+                  />
+                </div>
+              </div>
+              <button type="button" class="app-component-button button education-remove-button">
+                <span>Remove</span>
+              </button>
+            </div>
+          </div>
+          <div class="home-container2">
+            <span class="home-text04">Your experience:</span>
+            <button type="button" class="home-button1 button" id="experience-add-button">Add</button>
+          </div>
+          <div class="component1-container" id="experience-container">
+            <div class="component1-container1">
+              <div class="component1-container2">
+                <div class="component1-container3">
+                  <span class="component1-text"><span>Job Title: </span></span>
+                  <input
+                    type="text"
+                    placeholder="Software Engineer"
+                    class="component1-school-input input"
+                    name="title"
+                  />
+                </div>
+                <div class="component1-container4">
+                  <span class="component1-text1"><span>How Long: </span></span>
+                  <input
+                    type="text"
+                    placeholder="2 years"
+                    class="component1-duration-input input"
+                    name="duration"
+                  />
+                </div>
+                <div class="component1-container5">
+                  <span class="component1-text2">
+                    <span>What did you worked on: </span>
+                  </span>
+                  <textarea
+                    placeholder="Java, Spring Boot"
+                    class="component1-description-input textarea"
+                    name="description"
+                  ></textarea>
+                </div>
+              </div>
+              <div class="component1-container6">
+                <div class="component1-container7">
+                  <span class="component1-text3"><span>Company: </span></span>
+                  <input
+                    type="text"
+                    placeholder="Google"
+                    class="component1-company-input input"
+                    name="company"
+                  />
+                </div>
+              </div>
+              <button type="button" class="component1-button button experience-remove-button">
+                <span>Remove</span>
+              </button>
+            </div>
+          </div>
+          <div class="home-container3">
+            <span class="home-text05">Desired Job Title:&nbsp;</span>
+            <input
+              type="text"
+              placeholder="Software Engineer"
+              class="home-textinput input"
+              name="desiredTitle"
+            />
+          </div>
+          <div class="home-container4">
+            <span class="home-text06">Website to search:&nbsp;</span>
+            <select class="home-select" name="website">
+              <option value="Linkedin" selected="">Linkedin</option>
+            </select>
+          </div>
+        </div>
+        <button type="submit" class="home-button2 button submit-button">
+          <span>
+            <span>Search</span>
+            <br />
+          </span>
+        </button>
+        <div class="home-container5">
+          <span class="home-text10">
+            <span>Result:&nbsp;</span>
+            <br />
+            <span>Title: </span>
+            <span id="result-title"></span>
+            <br />
+            <span>Company: </span>
+            <span id="result-company"></span>
+            <br />
+            <span>Location: </span>
+            <span id="result-location"></span>
+            <br />
+            <a id="result-url" href="#" target="_blank"></a>
+          </span>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
