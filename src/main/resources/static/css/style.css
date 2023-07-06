@@ -34,6 +34,9 @@
   --dl-space-space-threeunits: 48px;
   --dl-space-space-oneandhalfunits: 24px;
 }
+span {
+  align-self: center;
+}
 .button {
   color: var(--dl-color-gray-black);
   display: block;
@@ -47,6 +50,7 @@
   background-color: lightgray;
 }
 .input {
+  align-self: center;
   color: var(--dl-color-gray-black);
   cursor: auto;
   padding: 0.5rem 1rem;

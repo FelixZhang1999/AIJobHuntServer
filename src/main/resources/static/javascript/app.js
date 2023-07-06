@@ -29,16 +29,29 @@ $(document).ready(function() {
     });
 
     // Form submission event
-    $('.submit-button').click(function(e) {
+    $('.home-button1').click(function(e) {
         e.preventDefault(); // Prevent the default form submission behavior
+
+        if ($('#resume-container').find('input[name="desiredTitle"]').val().length == 0) {
+            $('.home-error1').text("This field is required!");
+            return;
+        } else {
+            $('.home-error1').text("");
+        }
+
+        $(this).prop("disabled", true);
+        $(this).text("Please wait...");
 
         var formData = {};
         var education = [];
         $('#resume-container').find('.app-component-container1').each(function(index) {
             var school = $(this).find('input[name="school"]').val();
             var major = $(this).find('input[name="major"]').val();
-            var graduated = $(this).find('input[name="graduated"]').prop('checked');
             var degree = $(this).find('select[name="degree"]').val();
+            if (school.length == 0 && major.length == 0) {
+                return;
+            }
+            var graduated = $(this).find('input[name="graduated"]').prop('checked');
             education.push({
                 school: school,
                 major: major,
@@ -54,6 +67,9 @@ $(document).ready(function() {
             var duration = $(this).find('input[name="duration"]').val();
             var description = $(this).find('textarea[name="description"]').val();
             var company = $(this).find('input[name="company"]').val();
+            if (title.length == 0 && duration.length == 0 && company.length == 0 && description.length == 0) {
+                return;
+            }
             experience.push({
                 title: title,
                 duration: duration,
@@ -63,6 +79,7 @@ $(document).ready(function() {
         });
         formData['experience'] = experience;
         formData['desiredTitle'] = $('#resume-container').find('input[name="desiredTitle"]').val();
+        formData['location'] = $('#resume-container').find('input[name="location"]').val();
         formData['website'] = $('#resume-container').find('select[name="website"]').val();
 
         console.log();
@@ -82,6 +99,8 @@ $(document).ready(function() {
                 $('#result-location').text(job["location"]);
                 $('#result-url').text("Link");
                 $('#result-url').attr("href", job["url"]);
+                $('.home-button1').prop("disabled", false);
+                $('.home-button1').text("Search");
                 console.log(response);
             }
         });

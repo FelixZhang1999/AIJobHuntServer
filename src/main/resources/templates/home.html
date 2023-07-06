@@ -6,22 +6,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta charset="utf-8" />
     <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/home.css" />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="/javascript/app.js"></script>
   </head>
   <body>
     <div>
-      <link href="/css/home.css" rel="stylesheet" />
-
       <div class="home-container">
-        <h1 class="home-text">AIJobHunt</h1>
-        <span class="home-text01">
+        <h1 class="center-text">AIJobHunt</h1>
+        <span class="center-text">
           Enter your resume, we will find a suitable job posting for you.
         </span>
-        <span class="home-text02">Your resume:</span>
+        <span class="center-text home-text1">Your resume:</span>
         <div id="resume-container">
           <div class="home-container1">
-            <span class="home-text03">Your education:&nbsp;</span>
+            <span class="center-text home-text2">Your education:&nbsp;</span>
             <button type="button" class="home-button button" id="education-add-button">Add</button>
           </div>
           <div class="app-component-container" id="education-container">
@@ -78,8 +77,8 @@
             </div>
           </div>
           <div class="home-container2">
-            <span class="home-text04">Your experience:</span>
-            <button type="button" class="home-button1 button" id="experience-add-button">Add</button>
+            <span class="center-text home-text2">Your experience:</span>
+            <button type="button" class="home-button button" id="experience-add-button">Add</button>
           </div>
           <div class="component1-container" id="experience-container">
             <div class="component1-container1">
@@ -130,29 +129,41 @@
             </div>
           </div>
           <div class="home-container3">
-            <span class="home-text05">Desired Job Title:&nbsp;</span>
+            <span class="center-text">*Desired Job Title:&nbsp;</span>
             <input
               type="text"
               placeholder="Software Engineer"
               class="home-textinput input"
               name="desiredTitle"
+              required
+            />
+            <span class="home-error1" style="color: red;"></span>
+          </div>
+          <div class="home-container3">
+            <span class="center-text">Location:&nbsp;</span>
+            <input
+              type="text"
+              placeholder="California"
+              class="home-textinput input"
+              name="location"
+              required
             />
           </div>
           <div class="home-container4">
-            <span class="home-text06">Website to search:&nbsp;</span>
+            <span class="center-text">Website to search:&nbsp;</span>
             <select class="home-select" name="website">
               <option value="Linkedin" selected="">Linkedin</option>
             </select>
           </div>
         </div>
-        <button type="submit" class="home-button2 button submit-button">
+        <button type="submit" class="home-button1 button">
           <span>
             <span>Search</span>
             <br />
           </span>
         </button>
         <div class="home-container5">
-          <span class="home-text10">
+          <span class="center-text home-text3">
             <span>Result:&nbsp;</span>
             <br />
             <span>Title: </span>

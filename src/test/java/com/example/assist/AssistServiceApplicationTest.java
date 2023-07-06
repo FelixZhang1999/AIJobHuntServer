@@ -1,12 +1,11 @@
-package com.example.AssistService;
+package com.example.assist;
 
+import com.example.assist.AssistServiceApplication;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.example.assist.AssistServiceApplication;
-
 @SpringBootTest(classes=AssistServiceApplication.class)
-class AssistServiceApplicationTests {
+class AssistServiceApplicationTest {
 
 	@Test
 	void contextLoads() {

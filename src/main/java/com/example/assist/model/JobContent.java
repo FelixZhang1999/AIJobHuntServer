@@ -3,6 +3,9 @@ package com.example.assist.model;
 import lombok.Builder;
 import lombok.Data;
 
+/**
+ * Job posting information.
+ */
 @Builder
 @Data
 public class JobContent {

@@ -1,6 +1,9 @@
 package com.example.assist.scraping;
 
 import com.example.assist.model.JobContent;
+
+import io.micrometer.common.lang.Nullable;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,6 +16,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+/**
+ * Scrape from linkedin
+ */
 @Component
 public class LinkedinScraper extends BaseScraper {
 
@@ -21,17 +27,39 @@ public class LinkedinScraper extends BaseScraper {
     private final Logger logger = LoggerFactory.getLogger(LinkedinScraper.class);
     private final String baseUrl = "https://www.linkedin.com/jobs/search?";
 
-    public List<JobContent> scrapeJobs(final String title, final int size){
-        final String url = getFullUrl(title);
+    /**
+     * Scrape job postings.
+     * @param title The desired title of jobs.
+     * @param location The desired location of jobs.
+     * @param size The number of jobs to scrape.
+     * @return A list of job postings.
+     */
+    public List<JobContent> scrapeJobs(final String title, @Nullable final String location, final int size){
+        final String url = getFullUrl(title, location);
         final List<String> links = getLinksFromURL(url, size);
         return links.stream().map(this::scrapeJobContent).collect(Collectors.toList());
     }
 
-    protected String getFullUrl(final String title) {
-        final String formatTitle = title.replace(" ", "%2B");
-        return baseUrl + "keywords=" + formatTitle;
+    /**
+     * Create full url according to title and location.
+     * @param title The desired title of jobs.
+     * @param location The desired location of jobs.
+     * @return The full url.
+     */
+    protected String getFullUrl(final String title, @Nullable final String location) {
+        String fullUrl = baseUrl + "keywords=" + title.replace(" ", "%2B");
+        if (location != null){
+            fullUrl += "location=" + location.replace(" ", "%2B");
+        }
+        return fullUrl;
     }
 
+    /**
+     * Get job posting links from Linkedin search url.
+     * @param url The linkedin search url.
+     * @param size The number of jobs to scrape.
+     * @return A list of job postings url.
+     */
     protected List<String> getLinksFromURL(final String url, final int size) {
         List<String> links = new ArrayList<String>();
         try {
@@ -49,6 +77,11 @@ public class LinkedinScraper extends BaseScraper {
         return links;
     }
 
+    /**
+     * Scrape job posting url to get job posting contents.
+     * @param url A job postings url
+     * @return The job posting contents.
+     */
     protected JobContent scrapeJobContent(final String url){
         final JobContent jobContent = JobContent.builder().url(url).build();
         try {

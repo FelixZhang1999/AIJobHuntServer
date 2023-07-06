@@ -8,6 +8,9 @@ import com.example.assist.model.ExperienceData;
 import com.example.assist.model.JobContent;
 import com.example.assist.model.JobRequest;
 
+/**
+ * Helper methods related to Strings
+ */
 public class StringConverter {
     
     public static String JobRequestToString(final JobRequest resumeData) {
