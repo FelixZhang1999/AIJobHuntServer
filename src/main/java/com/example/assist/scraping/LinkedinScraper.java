@@ -1,6 +1,8 @@
 package com.example.assist.scraping;
 
 import com.example.assist.model.JobContent;
+import com.google.common.collect.ImmutableList;
+import com.google.errorprone.annotations.Immutable;
 
 import io.micrometer.common.lang.Nullable;
 
@@ -22,10 +24,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class LinkedinScraper extends BaseScraper {
 
-    private final int maxRetries = 3;
-    private final int retryDelayMillis = 1000;
+    private final int MAX_RETRIES = 3;
+    private final int RETRY_DELAY_MILLIS = 1000;
     private final Logger logger = LoggerFactory.getLogger(LinkedinScraper.class);
-    private final String baseUrl = "https://www.linkedin.com/jobs/search?";
+    private final String BASE_URL = "https://www.linkedin.com/jobs/search?";
 
     /**
      * Scrape job postings.
@@ -35,6 +37,9 @@ public class LinkedinScraper extends BaseScraper {
      * @return A list of job postings.
      */
     public List<JobContent> scrapeJobs(final String title, @Nullable final String location, final int size){
+        if (size <= 0) {
+            return ImmutableList.of();
+        }
         final String url = getFullUrl(title, location);
         final List<String> links = getLinksFromURL(url, size);
         return links.stream().map(this::scrapeJobContent).collect(Collectors.toList());
@@ -47,9 +52,9 @@ public class LinkedinScraper extends BaseScraper {
      * @return The full url.
      */
     protected String getFullUrl(final String title, @Nullable final String location) {
-        String fullUrl = baseUrl + "keywords=" + title.replace(" ", "%2B");
+        String fullUrl = BASE_URL + "keywords=" + title.replace(" ", "%2B");
         if (location != null){
-            fullUrl += "location=" + location.replace(" ", "%2B");
+            fullUrl += "&location=" + location.replace(" ", "%2B");
         }
         return fullUrl;
     }
@@ -85,7 +90,7 @@ public class LinkedinScraper extends BaseScraper {
     protected JobContent scrapeJobContent(final String url){
         final JobContent jobContent = JobContent.builder().url(url).build();
         try {
-            final Document document = fetchUrlWithRetries(url, maxRetries, retryDelayMillis);
+            final Document document = fetchUrlWithRetries(url, MAX_RETRIES, RETRY_DELAY_MILLIS);
             final Element jobTitleElement = document.selectFirst("h1.top-card-layout__title");
             jobContent.setTitle(jobTitleElement.text());
 

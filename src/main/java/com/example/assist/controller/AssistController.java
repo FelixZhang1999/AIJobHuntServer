@@ -30,6 +30,8 @@ public class AssistController {
     private final int scrapeSize = 5;
     private final Logger logger = LoggerFactory.getLogger(AssistController.class);
     private final LinkedinScraper linkedinScraper;
+    private final ResponseEntity EMPTY_RESPONSE = ResponseEntity.status(HttpStatus.OK)
+                            .body(JobResponse.builder().jobs(ImmutableList.of()).build());
 
     public AssistController(final ChatGPTApi chatGPTApi, final LinkedinScraper linkedinScraper) {
         this.chatGPTApi = chatGPTApi;
@@ -54,8 +56,8 @@ public class AssistController {
         WebsiteEnum website;
         try {
             website = WebsiteEnum.valueOf(resumeData.getWebsite());
-        } catch (IllegalArgumentException e) {
-            logger.warn("Unknown website String: " + resumeData.getWebsite(), e);
+        } catch (final IllegalArgumentException | NullPointerException e) {
+            logger.warn("Unknown website String: " + resumeData.getWebsite());
             website = WebsiteEnum.Linkedin;
         }
         if (website.equals(WebsiteEnum.Linkedin)) {
@@ -63,13 +65,16 @@ public class AssistController {
         } else {
             jobs = ImmutableList.of();
         }
+        if (jobs.size() == 0) {
+            return EMPTY_RESPONSE;
+        }
         logger.info("Size of job: " + jobs.size());
         logger.info(jobs.toString());
         logger.info(StringConverter.JobRequestToString(resumeData));
-        //chatGPTApi.rateJobs(StringConverter.JobRequestToString(resumeData), jobs);
-        //final JobContent bestJob = RatingHelper.findHighestOverallScore(jobs);
+        chatGPTApi.rateJobs(StringConverter.JobRequestToString(resumeData), jobs);
+        final JobContent bestJob = RatingHelper.findHighestOverallScore(jobs);
         return ResponseEntity.status(HttpStatus.OK)
-                            .body(JobResponse.builder().jobs(jobs).build());
+                            .body(JobResponse.builder().jobs(ImmutableList.of(bestJob)).build());
     }
 
     /**
