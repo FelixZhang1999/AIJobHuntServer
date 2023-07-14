@@ -10,6 +10,7 @@ import com.example.assist.model.JobRequest;
 import com.example.assist.model.JobResponse;
 import com.example.assist.scraping.LinkedinScraper;
 import com.google.common.collect.ImmutableList;
+import com.google.common.util.concurrent.RateLimiter;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,12 +31,14 @@ public class AssistController {
     private final int scrapeSize = 5;
     private final Logger logger = LoggerFactory.getLogger(AssistController.class);
     private final LinkedinScraper linkedinScraper;
-    private final ResponseEntity EMPTY_RESPONSE = ResponseEntity.status(HttpStatus.OK)
-                            .body(JobResponse.builder().jobs(ImmutableList.of()).build());
-
-    public AssistController(final ChatGPTApi chatGPTApi, final LinkedinScraper linkedinScraper) {
+    private final RateLimiter rateLimiter;
+    
+    public AssistController(final ChatGPTApi chatGPTApi,
+                            final LinkedinScraper linkedinScraper,
+                            final RateLimiter rateLimiter) {
         this.chatGPTApi = chatGPTApi;
         this.linkedinScraper = linkedinScraper;
+        this.rateLimiter = rateLimiter;
     }
 
     @GetMapping("/")
@@ -50,6 +53,9 @@ public class AssistController {
      */
     @PostMapping("/submit")
     public ResponseEntity<JobResponse> submitForm(@RequestBody final JobRequest resumeData) {
+        if (!rateLimiter.tryAcquire()) {
+            return buildErrorResponse("Too many requests, please try again.");
+        }
         logger.info(resumeData.toString());
         valudateJobRequest(resumeData);
         final List<JobContent> jobs;
@@ -66,7 +72,7 @@ public class AssistController {
             jobs = ImmutableList.of();
         }
         if (jobs.size() == 0) {
-            return EMPTY_RESPONSE;
+            return buildErrorResponse("Could not find any job postings, please try again.");
         }
         logger.info("Size of job: " + jobs.size());
         logger.info(jobs.toString());
@@ -74,16 +80,24 @@ public class AssistController {
         chatGPTApi.rateJobs(StringConverter.JobRequestToString(resumeData), jobs);
         final JobContent bestJob = RatingHelper.findHighestOverallScore(jobs);
         return ResponseEntity.status(HttpStatus.OK)
-                            .body(JobResponse.builder().jobs(ImmutableList.of(bestJob)).build());
+                            .body(JobResponse.builder().jobs(ImmutableList.of(bestJob)).error(false).build());
     }
 
     /**
      * Validate JobRequest.
      * @param resumeData The resume of the user.
      */
-    private void valudateJobRequest(JobRequest resumeData) {
+    private void valudateJobRequest(final JobRequest resumeData) {
         if (resumeData.getDesiredTitle() == null) {
             throw new InvalidRequestException("No desired title.");
         }
+    }
+
+    private ResponseEntity<JobResponse> buildErrorResponse(final String message) {
+        return ResponseEntity.status(HttpStatus.OK)
+                            .body(JobResponse.builder()
+                                            .message(message)
+                                            .error(true)
+                                            .build());
     }
 }

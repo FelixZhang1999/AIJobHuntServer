@@ -41,6 +41,7 @@ $(document).ready(function() {
 
         $(this).prop("disabled", true);
         $(this).text("Please wait...");
+        $('#error-messgae').text("");
 
         var formData = {};
         var education = [];
@@ -93,15 +94,20 @@ $(document).ready(function() {
             contentType: 'application/json',
             success: function(response) {
                 // Display the result dynamically
-                var job = response.jobs[0];
-                $('#result-title').text(job["title"]);
-                $('#result-company').text(job["company"]);
-                $('#result-location').text(job["location"]);
-                $('#result-url').text("Link");
-                $('#result-url').attr("href", job["url"]);
+                console.log(response);
+                if (response.error == true) {
+                    $('#error-message').text(response.message);
+                } else {
+                    var job = response.jobs[0];
+                    $('#result-title').text(job["title"]);
+                    $('#result-company').text(job["company"]);
+                    $('#result-location').text(job["location"]);
+                    $('#result-url').text("Link");
+                    $('#result-url').attr("href", job["url"]);
+                }
                 $('.home-button1').prop("disabled", false);
                 $('.home-button1').text("Search");
-                console.log(response);
+                
             }
         });
     });

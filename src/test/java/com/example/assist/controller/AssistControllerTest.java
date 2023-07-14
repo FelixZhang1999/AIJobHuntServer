@@ -9,6 +9,7 @@ import com.example.assist.model.JobRequest;
 import com.example.assist.model.JobResponse;
 import com.example.assist.scraping.LinkedinScraper;
 import com.google.common.collect.ImmutableList;
+import com.google.common.util.concurrent.RateLimiter;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,10 +37,14 @@ public class AssistControllerTest {
     @Mock
     private LinkedinScraper linkedinScraper;
 
+    @Mock
+    private RateLimiter rateLimiter;
+
     private JobRequest resume;
 
     @BeforeEach
     void init() {
+        when(rateLimiter.tryAcquire()).thenReturn(true);
         when(linkedinScraper.scrapeJobs(eq("SDE"), eq("US"), anyInt())).thenReturn(JOBS);
         doAnswer(invocation  -> {
             List<JobContent> myJobs = invocation.getArgument(1);
@@ -47,7 +52,7 @@ public class AssistControllerTest {
             myJobs.get(1).setOverallRating(5);
             return null;
         }).when(chatGPTApi).rateJobs(eq(RESUME_STRING), any());
-        assistController = new AssistController(chatGPTApi, linkedinScraper);
+        assistController = new AssistController(chatGPTApi, linkedinScraper, rateLimiter);
         resume = JobRequest.builder()
                             .desiredTitle("SDE")
                             .website("Linkedin")
@@ -75,7 +80,7 @@ public class AssistControllerTest {
 
     @Test
     void test_submit_goodRequest_success() {
-        final ResponseEntity response = assistController.submitForm(resume);
+        final ResponseEntity<JobResponse> response = assistController.submitForm(resume);
         verify(linkedinScraper, times(1))
                     .scrapeJobs(eq("SDE"), eq("US"), anyInt());
         verify(chatGPTApi, times(1)).rateJobs(eq(RESUME_STRING), any());
@@ -95,5 +100,13 @@ public class AssistControllerTest {
         assistController.submitForm(resume);
         verify(linkedinScraper, times(1))
                     .scrapeJobs(eq("SDE"), eq("US"), anyInt());
+    }
+
+    @Test
+    void test_submit_rateLimit_fails() {
+        when(rateLimiter.tryAcquire()).thenReturn(false);
+        final JobResponse response = assistController.submitForm(resume).getBody();
+        assertTrue(response.isError());
+        assertTrue(response.getMessage().length() > 0);
     }
 }
