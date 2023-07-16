@@ -2,10 +2,7 @@ package com.example.assist.scraping;
 
 import com.example.assist.model.JobContent;
 import com.google.common.collect.ImmutableList;
-import com.google.errorprone.annotations.Immutable;
-
 import io.micrometer.common.lang.Nullable;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;

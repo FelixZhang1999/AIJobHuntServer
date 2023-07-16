@@ -1,7 +1,6 @@
 package com.example.assist.controller;
 
 import com.example.assist.api.ChatGPTApi;
-import com.example.assist.exception.InvalidRequestException;
 import com.example.assist.model.EducationData;
 import com.example.assist.model.ExperienceData;
 import com.example.assist.model.JobContent;
@@ -26,7 +25,7 @@ public class AssistControllerTest {
 
     private final List<JobContent> JOBS = ImmutableList.of(JobContent.builder().title("SDE").build(),
                                                             JobContent.builder().title("SDM").build());
-
+    private final String LONG_STRING = "ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ";
     private final String RESUME_STRING = "Education: UCSD, Not graduated\nExperience: Amazon ";
 
     private AssistController assistController;
@@ -73,9 +72,18 @@ public class AssistControllerTest {
 
     @Test
     void test_submit_noTitle_fails() {
-        assertThrows(InvalidRequestException.class, () -> {
-            assistController.submitForm(JobRequest.builder().build());
-        });
+        final JobResponse response = assistController.submitForm(JobRequest.builder().build()).getBody();
+        assertTrue(response.isError());
+        assertTrue(response.getMessage().length() > 0);
+    }
+
+    @Test
+    void test_submit_toolongTitle_fails() {
+        final JobResponse response = assistController.submitForm(JobRequest.builder()
+                                                                            .desiredTitle(LONG_STRING)
+                                                                            .build()).getBody();
+        assertTrue(response.isError());
+        assertTrue(response.getMessage().length() > 0);
     }
 
     @Test

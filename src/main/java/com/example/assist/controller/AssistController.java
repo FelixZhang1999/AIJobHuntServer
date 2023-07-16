@@ -1,5 +1,7 @@
 package com.example.assist.controller;
 
+import com.example.assist.model.EducationData;
+import com.example.assist.model.ExperienceData;
 import com.example.assist.model.JobContent;
 import com.example.assist.api.ChatGPTApi;
 import com.example.assist.enums.WebsiteEnum;
@@ -57,7 +59,10 @@ public class AssistController {
             return buildErrorResponse("Too many requests, please try again.");
         }
         logger.info(resumeData.toString());
-        valudateJobRequest(resumeData);
+        if (!valudateJobRequest(resumeData)) {
+            return buildErrorResponse("Invalid request, please try again.");
+        }
+        
         final List<JobContent> jobs;
         WebsiteEnum website;
         try {
@@ -86,18 +91,54 @@ public class AssistController {
     /**
      * Validate JobRequest.
      * @param resumeData The resume of the user.
+     * @return whether is valid or not
      */
-    private void valudateJobRequest(final JobRequest resumeData) {
-        if (resumeData.getDesiredTitle() == null) {
-            throw new InvalidRequestException("No desired title.");
+    private boolean valudateJobRequest(final JobRequest resumeData) {
+        if (resumeData.getDesiredTitle() == null || resumeData.getDesiredTitle().length() == 0 ||
+            resumeData.getDesiredTitle().length() > 30 ||
+            stringLongerThan(resumeData.getLocation(), 30) ||
+            !validateEducation(resumeData.getEducation()) || !validateExperience(resumeData.getExperience())) {
+            return false;
         }
+        return true;
     }
 
+    private boolean validateEducation(final List<EducationData> education) {
+        for (final EducationData educationData : education){
+            if (stringLongerThan(educationData.getSchool(), 30) ||
+                stringLongerThan(educationData.getMajor(), 30)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean validateExperience(final List<ExperienceData> experience) {
+        for (final ExperienceData experienceData : experience){
+            if (stringLongerThan(experienceData.getCompany(), 30) ||
+                stringLongerThan(experienceData.getTitle(), 30) ||
+                stringLongerThan(experienceData.getDuration(), 15) ||
+                stringLongerThan(experienceData.getDescription(), 100)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Build response for submit request.
+     * @param message The message in the response.
+     * @return
+     */
     private ResponseEntity<JobResponse> buildErrorResponse(final String message) {
         return ResponseEntity.status(HttpStatus.OK)
                             .body(JobResponse.builder()
                                             .message(message)
                                             .error(true)
                                             .build());
+    }
+
+    private boolean stringLongerThan(final String string, final int length) {
+        return string != null && string.length() > 30;
     }
 }
