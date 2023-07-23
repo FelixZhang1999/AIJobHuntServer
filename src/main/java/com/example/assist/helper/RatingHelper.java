@@ -1,6 +1,7 @@
 package com.example.assist.helper;
 
 import com.example.assist.model.JobContent;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -30,5 +31,20 @@ public class RatingHelper {
         }
 
         return highestScoreJob;
+    }
+
+    /**
+     * Find jobs with overall score 4 and above among a list of jobs.
+     * @param jobs The list of jobs to look for.
+     * @return The high score jobs.
+     */
+    public static List<JobContent> findHighOverallScores(List<JobContent> jobs) {
+        List<JobContent> highScoreJobs = new ArrayList<JobContent>();
+        for (final JobContent job : jobs) {
+            if (job.getOverallRating() >= 4) {
+                highScoreJobs.add(job);
+            }
+        }
+        return highScoreJobs;
     }
 }

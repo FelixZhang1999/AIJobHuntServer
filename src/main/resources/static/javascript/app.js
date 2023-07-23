@@ -1,4 +1,9 @@
 $(document).ready(function() {
+    var lastTitle = "";
+    var lastLocation = "";
+    var nextStart = 0;
+    var jobLists = [];
+
     // Add component button click event
     $('#education-add-button').click(function() {
         var component = $('.app-component-container1:first').clone(); // Clone the first form component
@@ -41,9 +46,25 @@ $(document).ready(function() {
 
         $(this).prop("disabled", true);
         $(this).text("Please wait...");
-        $('#error-messgae').text("");
+        $('#error-message').text("");
 
         var formData = {};
+        if (lastTitle ===  $('#resume-container').find('input[name="desiredTitle"]').val() &&
+            lastLocation === $('#resume-container').find('input[name="location"]').val()) {
+            if (jobLists.length > 0) {
+                setTimeout(function(){
+                    fillJobData();
+                    $('.home-button1').prop("disabled", false);
+                    $('.home-button1').text("Search");
+                }, 1000);
+                return;
+            }
+            formData['nextStart'] = nextStart;
+        }else{
+            formData['nextStart'] = 0;
+            nextStart = 0;
+        }
+
         var education = [];
         $('#resume-container').find('.app-component-container1').each(function(index) {
             var school = $(this).find('input[name="school"]').val();
@@ -83,6 +104,9 @@ $(document).ready(function() {
         formData['location'] = $('#resume-container').find('input[name="location"]').val();
         formData['website'] = $('#resume-container').find('select[name="website"]').val();
 
+        lastTitle = formData['desiredTitle'];
+        lastLocation = formData['location'];
+
         console.log();
         console.log("Form Data: " + JSON.stringify(formData));
 
@@ -98,17 +122,29 @@ $(document).ready(function() {
                 if (response.error == true) {
                     $('#error-message').text(response.message);
                 } else {
-                    var job = response.jobs[0];
-                    $('#result-title').text(job["title"]);
-                    $('#result-company').text(job["company"]);
-                    $('#result-location').text(job["location"]);
-                    $('#result-url').text("Link");
-                    $('#result-url').attr("href", job["url"]);
+                    jobLists = response["jobs"];
+                    fillJobData();
                 }
+                nextStart = response["nextStart"];
                 $('.home-button1').prop("disabled", false);
                 $('.home-button1').text("Search");
-                
+            },
+            error: function(response) {
+                $('#error-message').text("Something is wrong. Please try again.");
+                $('.home-button1').prop("disabled", false);
+                $('.home-button1').text("Search");
             }
         });
     });
+
+    function fillJobData() {
+        var job = jobLists[0];
+        $('#result-title').text(job["title"]);
+        $('#result-company').text(job["company"]);
+        $('#result-location').text(job["location"]);
+        $('#result-url').text("Link");
+        $('#result-url').attr("href", job["url"]);
+        jobLists.shift();
+        console.log("Has " + jobLists.length + " left.");
+    }
 });

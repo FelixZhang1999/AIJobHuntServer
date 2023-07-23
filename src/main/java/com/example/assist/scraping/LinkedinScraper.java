@@ -33,12 +33,13 @@ public class LinkedinScraper extends BaseScraper {
      * @param size The number of jobs to scrape.
      * @return A list of job postings.
      */
-    public List<JobContent> scrapeJobs(final String title, @Nullable final String location, final int size){
+    public List<JobContent> scrapeJobs(final String title, @Nullable final String location, final int size,
+                                        final int nextStart){
         if (size <= 0) {
             return ImmutableList.of();
         }
         final String url = getFullUrl(title, location);
-        final List<String> links = getLinksFromURL(url, size);
+        final List<String> links = getLinksFromURL(url, size, nextStart);
         return links.stream().map(this::scrapeJobContent).collect(Collectors.toList());
     }
 
@@ -62,12 +63,13 @@ public class LinkedinScraper extends BaseScraper {
      * @param size The number of jobs to scrape.
      * @return A list of job postings url.
      */
-    protected List<String> getLinksFromURL(final String url, final int size) {
+    protected List<String> getLinksFromURL(final String url, final int size, final int nextStart) {
         List<String> links = new ArrayList<String>();
         try {
             final Document document = Jsoup.connect(url).get();
             final Elements linkElements = document.select("a.base-card__full-link");
-            for (final Element linkElement : linkElements) {
+            for (int i = nextStart; i < 25; i++) {
+                final Element linkElement = linkElements.get(i);
                 links.add(linkElement.attr("href"));
                 if (links.size() >= size) {
                     break;

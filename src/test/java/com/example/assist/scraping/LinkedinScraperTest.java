@@ -16,15 +16,17 @@ public class LinkedinScraperTest {
 
     @Test
     void test_scrapeJobs_zeroSize_returnEmptyList() {
-        final List<JobContent> jobs = linkedinScraper.scrapeJobs(TITLE, LOCATION, 0);
+        final List<JobContent> jobs = linkedinScraper.scrapeJobs(TITLE, LOCATION, 0, 0);
         assertEquals(jobs.size(), 0);
     }
 
     @Test
     void test_scrapeJobs_twoJobs_success() {
-        final List<JobContent> jobs = linkedinScraper.scrapeJobs(TITLE, LOCATION, 2);
+        final List<JobContent> jobs = linkedinScraper.scrapeJobs(TITLE, LOCATION, 2, 0);
         assertEquals(jobs.size(), 2);
         jobs.stream().forEach(job -> checkJobContent(job));
+        final List<JobContent> newJobs = linkedinScraper.scrapeJobs(TITLE, LOCATION, 2, 2);
+        assertNotEquals(jobs.get(0).getUrl(), newJobs.get(0).getUrl());
     }
 
     private void checkJobContent(JobContent job) {

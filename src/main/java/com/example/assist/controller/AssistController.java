@@ -5,7 +5,7 @@ import com.example.assist.model.ExperienceData;
 import com.example.assist.model.JobContent;
 import com.example.assist.api.ChatGPTApi;
 import com.example.assist.enums.WebsiteEnum;
-import com.example.assist.exception.InvalidRequestException;
+import com.example.assist.helper.DescriptionShortener;
 import com.example.assist.helper.RatingHelper;
 import com.example.assist.helper.StringConverter;
 import com.example.assist.model.JobRequest;
@@ -13,6 +13,7 @@ import com.example.assist.model.JobResponse;
 import com.example.assist.scraping.LinkedinScraper;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.RateLimiter;
+import java.util.Iterator;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,13 +57,47 @@ public class AssistController {
     @PostMapping("/submit")
     public ResponseEntity<JobResponse> submitForm(@RequestBody final JobRequest resumeData) {
         if (!rateLimiter.tryAcquire()) {
-            return buildErrorResponse("Too many requests, please try again.");
+            return buildErrorResponse("Too many requests. Please try again.", resumeData.getNextStart());
         }
         logger.info(resumeData.toString());
         if (!valudateJobRequest(resumeData)) {
-            return buildErrorResponse("Invalid request, please try again.");
+            return buildErrorResponse("Invalid request. Please try again.", resumeData.getNextStart());
+        }
+        if (resumeData.getNextStart() >= 25) {
+            return buildErrorResponse("Too many same requests. Please try a different title or location.",
+                                        resumeData.getNextStart());
         }
         
+        final List<JobContent> jobs = getJobList(resumeData);
+        if (jobs.size() == 0) {
+            return buildErrorResponse("Could not find any job postings. Please try a different title or location.",
+                                        resumeData.getNextStart() + scrapeSize);
+        }
+        logger.info("Size of job: " + jobs.size());
+        logger.info(jobs.toString());
+        logger.info(StringConverter.JobRequestToString(resumeData));
+        chatGPTApi.rateJobs(StringConverter.JobRequestToString(resumeData), jobs);
+        final List<JobContent> bestJobs = RatingHelper.findHighOverallScores(jobs);
+        if (bestJobs.size() == 0) {
+            return buildErrorResponse("Could not find any job postings. Please try again.",
+                                            resumeData.getNextStart() + scrapeSize);
+        }
+        // Set Description to empty to reduce data
+        bestJobs.forEach(job -> job.setDescription(""));
+        return ResponseEntity.status(HttpStatus.OK)
+                            .body(JobResponse.builder()
+                                            .jobs(bestJobs)
+                                            .error(false)
+                                            .nextStart(resumeData.getNextStart() + scrapeSize)
+                                            .build());
+    }
+
+    /**
+     * Scrape a list of jobs and modify it according to needs.
+     * @param resumeData User resume
+     * @return a list of jobs
+     */
+    private List<JobContent> getJobList(final JobRequest resumeData) {
         final List<JobContent> jobs;
         WebsiteEnum website;
         try {
@@ -72,20 +107,23 @@ public class AssistController {
             website = WebsiteEnum.Linkedin;
         }
         if (website.equals(WebsiteEnum.Linkedin)) {
-            jobs = linkedinScraper.scrapeJobs(resumeData.getDesiredTitle(), resumeData.getLocation(), scrapeSize);
+            jobs = linkedinScraper.scrapeJobs(resumeData.getDesiredTitle(), resumeData.getLocation(),
+                                                scrapeSize, resumeData.getNextStart());
         } else {
             jobs = ImmutableList.of();
         }
-        if (jobs.size() == 0) {
-            return buildErrorResponse("Could not find any job postings, please try again.");
+
+        jobs.forEach(job -> {
+            job.setDescription(DescriptionShortener.shortenDescription(job.getDescription()));
+        });
+        final Iterator<JobContent> iterator = jobs.iterator();
+        while (iterator.hasNext()) {
+            final JobContent obj = iterator.next();
+            if (obj.getDescription() != null && obj.getDescription().length() > 4000) {
+                iterator.remove();
+            }
         }
-        logger.info("Size of job: " + jobs.size());
-        logger.info(jobs.toString());
-        logger.info(StringConverter.JobRequestToString(resumeData));
-        chatGPTApi.rateJobs(StringConverter.JobRequestToString(resumeData), jobs);
-        final JobContent bestJob = RatingHelper.findHighestOverallScore(jobs);
-        return ResponseEntity.status(HttpStatus.OK)
-                            .body(JobResponse.builder().jobs(ImmutableList.of(bestJob)).error(false).build());
+        return jobs;
     }
 
     /**
@@ -95,8 +133,8 @@ public class AssistController {
      */
     private boolean valudateJobRequest(final JobRequest resumeData) {
         if (resumeData.getDesiredTitle() == null || resumeData.getDesiredTitle().length() == 0 ||
-            resumeData.getDesiredTitle().length() > 30 ||
-            stringLongerThan(resumeData.getLocation(), 30) ||
+            resumeData.getDesiredTitle().length() > 40 ||
+            stringLongerThan(resumeData.getLocation(), 40) ||
             !validateEducation(resumeData.getEducation()) || !validateExperience(resumeData.getExperience())) {
             return false;
         }
@@ -105,8 +143,8 @@ public class AssistController {
 
     private boolean validateEducation(final List<EducationData> education) {
         for (final EducationData educationData : education){
-            if (stringLongerThan(educationData.getSchool(), 30) ||
-                stringLongerThan(educationData.getMajor(), 30)) {
+            if (stringLongerThan(educationData.getSchool(), 40) ||
+                stringLongerThan(educationData.getMajor(), 40)) {
                 return false;
             }
         }
@@ -115,9 +153,9 @@ public class AssistController {
 
     private boolean validateExperience(final List<ExperienceData> experience) {
         for (final ExperienceData experienceData : experience){
-            if (stringLongerThan(experienceData.getCompany(), 30) ||
-                stringLongerThan(experienceData.getTitle(), 30) ||
-                stringLongerThan(experienceData.getDuration(), 15) ||
+            if (stringLongerThan(experienceData.getCompany(), 40) ||
+                stringLongerThan(experienceData.getTitle(), 40) ||
+                stringLongerThan(experienceData.getDuration(), 20) ||
                 stringLongerThan(experienceData.getDescription(), 100)) {
                 return false;
             }
@@ -130,14 +168,21 @@ public class AssistController {
      * @param message The message in the response.
      * @return
      */
-    private ResponseEntity<JobResponse> buildErrorResponse(final String message) {
+    private ResponseEntity<JobResponse> buildErrorResponse(final String message, final int nextStart) {
         return ResponseEntity.status(HttpStatus.OK)
                             .body(JobResponse.builder()
                                             .message(message)
+                                            .nextStart(nextStart)
                                             .error(true)
                                             .build());
     }
 
+    /**
+     * If a string is not null, it should not be longer than.
+     * @param string The string to validate.
+     * @param length The max length of the string.
+     * @return whether is valid or not
+     */
     private boolean stringLongerThan(final String string, final int length) {
         return string != null && string.length() > 30;
     }

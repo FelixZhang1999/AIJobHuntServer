@@ -10,6 +10,7 @@ import lombok.Data;
 @Builder
 @Data
 public class JobRequest {
+    private int nextStart;
     private List<EducationData> education;
     private List<ExperienceData> experience;
     private String desiredTitle;

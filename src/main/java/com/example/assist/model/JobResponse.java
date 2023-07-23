@@ -11,6 +11,7 @@ import lombok.Data;
 @Data
 public class JobResponse {
     private boolean error;
+    private int nextStart;
     private List<JobContent> jobs;
     private String message;
 }
