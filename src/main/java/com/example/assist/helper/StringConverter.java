@@ -58,9 +58,6 @@ public class StringConverter {
             returnString += experienceData.getTitle() + " ";
         }
         if (experienceData.getDuration() != null) {
-            returnString += experienceData.getDuration() + " ";
-        }
-        if (experienceData.getDuration() != null) {
             returnString += experienceData.getDuration();
         }
         if (experienceData.getDescription() != null) {
