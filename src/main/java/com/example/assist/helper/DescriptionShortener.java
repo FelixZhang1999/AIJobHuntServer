@@ -9,7 +9,7 @@ import java.util.List;
 public class DescriptionShortener {
 
     // Description is informative after these keywords
-    final static List<String> KEYWORDS = ImmutableList.of("responsibilities",
+    private final static List<String> KEYWORDS = ImmutableList.of("responsibilities",
                                                         "what you\u2019ll",
                                                         "what you will",
                                                         "we're looking for",

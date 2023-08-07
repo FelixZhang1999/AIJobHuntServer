@@ -19,15 +19,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * Main controller for APIs.
  */
-@Controller
+@RestController
 public class AssistController {
 
     private final ChatGPTApi chatGPTApi;
@@ -42,11 +41,6 @@ public class AssistController {
         this.chatGPTApi = chatGPTApi;
         this.linkedinScraper = linkedinScraper;
         this.rateLimiter = rateLimiter;
-    }
-
-    @GetMapping("/")
-    public String homePage() {
-        return "home";
     }
 
     /**

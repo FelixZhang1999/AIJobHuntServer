@@ -23,7 +23,7 @@ public class ChatMessageFactory implements FactoryBean<ChatMessage> {
 
     @Override
     public Class<?> getObjectType() {
-        return OpenAiService.class;
+        return ChatMessage.class;
     }
 
     @Override

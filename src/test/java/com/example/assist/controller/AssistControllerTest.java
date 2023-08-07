@@ -66,11 +66,6 @@ public class AssistControllerTest {
     }
 
     @Test
-    void test_homePage_returnHome() {
-        assertEquals("home", assistController.homePage());
-    }
-
-    @Test
     void test_submit_noTitle_fails() {
         final JobResponse response = assistController.submitForm(JobRequest.builder().build()).getBody();
         assertTrue(response.isError());
