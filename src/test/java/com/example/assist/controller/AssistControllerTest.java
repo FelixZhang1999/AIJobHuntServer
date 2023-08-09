@@ -6,6 +6,7 @@ import com.example.assist.model.ExperienceData;
 import com.example.assist.model.JobContent;
 import com.example.assist.model.JobRequest;
 import com.example.assist.model.JobResponse;
+import com.example.assist.scraping.IndeedScraper;
 import com.example.assist.scraping.LinkedinScraper;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.RateLimiter;

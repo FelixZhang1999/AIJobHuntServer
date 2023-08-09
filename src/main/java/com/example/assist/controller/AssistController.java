@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Main controller for APIs.
+ * Rest controller for submit API.
  */
 @RestController
 public class AssistController {
@@ -48,7 +48,7 @@ public class AssistController {
      * @param resumeData The resume of the user.
      * @return Suitable job postings.
      */
-    @PostMapping("/submit")
+    @PostMapping("/api/submit")
     public ResponseEntity<JobResponse> submitForm(@RequestBody final JobRequest resumeData) {
         if (!rateLimiter.tryAcquire()) {
             return buildErrorResponse("Too many requests. Please try again.", resumeData.getNextStart());
@@ -80,7 +80,7 @@ public class AssistController {
         bestJobs.forEach(job -> job.setDescription(""));
         return ResponseEntity.status(HttpStatus.OK)
                             .body(JobResponse.builder()
-                                            .jobs(bestJobs)
+                                            .jobs(jobs)
                                             .error(false)
                                             .nextStart(resumeData.getNextStart() + scrapeSize)
                                             .build());

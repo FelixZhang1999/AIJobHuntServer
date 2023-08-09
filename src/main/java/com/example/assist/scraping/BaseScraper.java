@@ -1,14 +1,62 @@
 package com.example.assist.scraping;
 
+import com.example.assist.model.JobContent;
+import com.google.common.collect.ImmutableList;
 import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.springframework.lang.Nullable;
 
 /**
  * Basic scraper.
  */
 public abstract class BaseScraper {
+
+    protected final int MAX_RETRIES = 3;
+    protected final int RETRY_DELAY_MILLIS = 1000;
+
+    /**
+     * Scrape job postings.
+     * @param title The desired title of jobs.
+     * @param location The desired location of jobs.
+     * @param size The number of jobs to scrape.
+     * @return A list of job postings.
+     */
+    public List<JobContent> scrapeJobs(final String title, @Nullable final String location, final int size,
+                                        final int nextStart) {
+        if (size <= 0) {
+            return ImmutableList.of();
+        }
+        final String url = getFullUrl(title, location, nextStart);
+        final List<String> links = getLinksFromURL(url, size, nextStart);
+        return links.stream().map(this::scrapeJobContent).collect(Collectors.toList());
+    }
+
+    /**
+     * Create full url according to title and location.
+     * @param title The desired title of jobs.
+     * @param location The desired location of jobs.
+     * @return The full url.
+     */
+    protected abstract String getFullUrl(final String title, @Nullable final String location, final int nextStart);
+
+    /**
+     * Get job posting links from Linkedin search url.
+     * @param url The linkedin search url.
+     * @param size The number of jobs to scrape.
+     * @return A list of job postings url.
+     */
+    protected abstract List<String> getLinksFromURL(final String url, final int size, final int nextStart);
+
+    /**
+     * Scrape job posting url to get job posting contents.
+     * @param url A job postings url
+     * @return The job posting contents.
+     */
+    protected abstract JobContent scrapeJobContent(final String url);
 
     /**
      * Fetch html from an url with retries when reach rate limit.

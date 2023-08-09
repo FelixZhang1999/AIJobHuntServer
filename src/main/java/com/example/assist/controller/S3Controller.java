@@ -17,6 +17,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * Rest controller for s3 API.
+ */
 @RestController
 public class S3Controller {
 
@@ -32,7 +35,11 @@ public class S3Controller {
         this.rateLimiter = rateLimiter;
     }
 
-    @PostMapping("/sendsuggestion")
+    /**
+     * Send suggestion to s3.
+     * @param itemContent The message to sent.
+     */
+    @PostMapping("/api/sendsuggestion")
     public void uploadToS3(@RequestBody final SuggestionRequest itemContent) {
         if (!rateLimiter.tryAcquire()) {
             return;

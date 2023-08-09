@@ -112,7 +112,7 @@ $(document).ready(function() {
 
         // Make AJAX POST request to submit the form data
         $.ajax({
-            url: '/submit',
+            url: '/api/submit',
             type: 'POST',
             data: JSON.stringify(formData),
             contentType: 'application/json',

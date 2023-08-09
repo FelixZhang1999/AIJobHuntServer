@@ -13,5 +13,10 @@
     "name": "ChatGPT.ratingPattern",
     "type": "java.lang.String",
     "description": "Pattern for ChatGPT rating"
+  },
+  {
+    "name": "s3.region",
+    "type": "java.lang.String",
+    "description": "S3 region name"
   }
 ]}
