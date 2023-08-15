@@ -1,8 +1,11 @@
-This is the backend of AIJobHunt.
+##This is the backend of AIJobHunt.
+
+Frontend git: [https://github.com/FelixZhang1999/AIJobHuntClient]
 
 In order to run it, you need to create application.properties file in src/main/resources. In the file, define the following strings: 
 
 ChatGPT.secretKey =
+
 ChatGPT.systemPrompt =
 
 ChatGPT.secretKey is the OPENAI API key.
