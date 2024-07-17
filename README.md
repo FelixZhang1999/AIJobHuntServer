@@ -1,6 +1,6 @@
 ## This is the backend of AIJobHunt.
 # What is this
-This is the backend service for website: [https://aijobhunt.xyz/](https://aijobhunt.xyz/). The backend provides a few API calls.
+This is the backend service for the website: [https://aijobhunt.xyz/](https://aijobhunt.xyz/) [deprecated]. The backend provides a few API calls.
 
 
 The first API call is [/api/submit]. The request contains the customer's resume. This API will retrieve a list of job postings that ChatGPT thinks your resume fits and return in response. The API first processes the resume in the request, then scrapes job postings with titles that the customer desires, combining all of the above data to form a prompt to call ChatGPT. After that, it processes the ChatGPT responses and returns the customer with job postings that best fit the resume.
